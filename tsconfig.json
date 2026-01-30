@@ -4,15 +4,28 @@
     "module": "CommonJS",
     "moduleResolution": "Node",
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@agent/*": ["src/agent/*"],
+      "@channels/*": ["src/channels/*"],
+      "@config/*": ["src/config/*"],
+      "@gateway/*": ["src/gateway/*"],
+      "@security/*": ["src/security/*"],
+      "@sessions/*": ["src/sessions/*"],
+      "@tools/*": ["src/tools/*"],
+      "@types/*": ["src/types/*"],
+      "@utils/*": ["src/utils/*"]
+    }
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*.ts", "tests/**/*.ts"],
+  "exclude": ["node_modules", "dist", "tests"]
 }

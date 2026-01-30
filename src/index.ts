@@ -1,19 +1,20 @@
+import "tsconfig-paths/register";
 import path from "path";
 import fs from "fs";
-import { createGateway } from "./gateway/server";
-import { registerWebChat } from "./channels/webchat/server";
-import { createTelegramBot } from "./channels/telegram/bot";
-import { createDiscordClient } from "./channels/discord/bot";
-import { loadConfig } from "./config/loader";
-import { logger } from "./utils/logger";
-import { createProvider } from "./agent/providers";
-import { createDefaultToolRegistry } from "./agent/tools";
-import { AgentRuntime } from "./agent/runtime";
-import { AgentService } from "./agent/service";
-import { SessionStore } from "./sessions/store";
-import { SessionManager } from "./sessions/manager";
-import { Allowlist } from "./security/allowlist";
-import { assertNonEmpty } from "./utils/validators";
+import { createGateway } from "@gateway/server";
+import { registerWebChat } from "@channels/webchat/server";
+import { createTelegramBot } from "@channels/telegram/bot";
+import { createDiscordClient } from "@channels/discord/bot";
+import { loadConfig } from "@config/loader";
+import { logger } from "@utils/logger";
+import { createProvider } from "@agent/providers";
+import { createDefaultToolRegistry } from "@agent/tools";
+import { AgentRuntime } from "@agent/runtime";
+import { AgentService } from "@agent/service";
+import { SessionStore } from "@sessions/store";
+import { SessionManager } from "@sessions/manager";
+import { Allowlist } from "@security/allowlist";
+import { assertNonEmpty } from "@utils/validators";
 
 function loadOptionalFile(filePath: string): string | undefined {
   if (!fs.existsSync(filePath)) {

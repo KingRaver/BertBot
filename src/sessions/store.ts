@@ -1,13 +1,26 @@
 import fs from "fs/promises";
 import path from "path";
 import type { Session } from "./types";
+import { encrypt, decrypt, isEncryptionEnabled } from "@security/encryption";
+import { logger } from "@utils/logger";
 
 export class SessionStore {
   private sessions = new Map<string, Session>();
   private persistDir?: string;
+  private encryptionEnabled: boolean;
 
   constructor(persistDir?: string) {
     this.persistDir = persistDir;
+    this.encryptionEnabled = isEncryptionEnabled();
+
+    if (this.persistDir && this.encryptionEnabled) {
+      logger.info("Session encryption enabled");
+    } else if (this.persistDir && !this.encryptionEnabled) {
+      logger.warn(
+        "Session encryption is DISABLED. Set SESSION_ENCRYPTION_KEY environment variable to enable. " +
+        "Generate one with: openssl rand -base64 32"
+      );
+    }
   }
 
   private toFileName(sessionId: string): string {
@@ -28,13 +41,38 @@ export class SessionStore {
       return undefined;
     }
 
-    const filePath = path.join(this.persistDir, `${this.toFileName(sessionId)}.json`);
+    const extension = this.encryptionEnabled ? ".enc" : ".json";
+    const filePath = path.join(this.persistDir, `${this.toFileName(sessionId)}${extension}`);
+
     try {
-      const raw = await fs.readFile(filePath, "utf8");
-      const session = JSON.parse(raw) as Session;
-      this.sessions.set(sessionId, session);
-      return session;
+      if (this.encryptionEnabled) {
+        // Read encrypted file
+        const encrypted = await fs.readFile(filePath);
+        const decrypted = decrypt(encrypted);
+        const session = JSON.parse(decrypted) as Session;
+        this.sessions.set(sessionId, session);
+        return session;
+      } else {
+        // Read plain JSON file (legacy/development)
+        const raw = await fs.readFile(filePath, "utf8");
+        const session = JSON.parse(raw) as Session;
+        this.sessions.set(sessionId, session);
+        return session;
+      }
     } catch (error) {
+      // Try loading from old format if new format fails
+      if (this.encryptionEnabled) {
+        try {
+          const oldPath = path.join(this.persistDir, `${this.toFileName(sessionId)}.json`);
+          const raw = await fs.readFile(oldPath, "utf8");
+          const session = JSON.parse(raw) as Session;
+          this.sessions.set(sessionId, session);
+          logger.info("Loaded unencrypted session, will encrypt on next save", { sessionId });
+          return session;
+        } catch {
+          // Fall through to return undefined
+        }
+      }
       return undefined;
     }
   }
@@ -50,8 +88,22 @@ export class SessionStore {
       return;
     }
 
-    const filePath = path.join(this.persistDir, `${this.toFileName(session.id)}.json`);
     await fs.mkdir(this.persistDir, { recursive: true });
-    await fs.writeFile(filePath, JSON.stringify(session, null, 2), "utf8");
+
+    const extension = this.encryptionEnabled ? ".enc" : ".json";
+    const filePath = path.join(this.persistDir, `${this.toFileName(session.id)}${extension}`);
+
+    if (this.encryptionEnabled) {
+      // Encrypt and save
+      const plaintext = JSON.stringify(session);
+      const encrypted = encrypt(plaintext);
+      await fs.writeFile(filePath, encrypted);
+
+      // Set restrictive file permissions (owner read/write only)
+      await fs.chmod(filePath, 0o600);
+    } else {
+      // Save as plain JSON (legacy/development)
+      await fs.writeFile(filePath, JSON.stringify(session, null, 2), "utf8");
+    }
   }
 }

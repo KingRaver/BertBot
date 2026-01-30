@@ -7,13 +7,48 @@ interface FilesToolInput {
   content?: string;
 }
 
-function resolvePath(targetPath: string): string {
-  const resolved = path.resolve(process.cwd(), targetPath);
-  const relative = path.relative(process.cwd(), resolved);
+async function resolvePath(targetPath: string): Promise<string> {
+  // Sanitize input
+  if (!targetPath || typeof targetPath !== "string") {
+    throw new Error("Invalid path");
+  }
+
+  // Remove null bytes and other dangerous characters
+  const sanitized = targetPath.replace(/\0/g, "").trim();
+  if (!sanitized) {
+    throw new Error("Invalid path");
+  }
+
+  // Resolve to absolute path
+  const workspaceRoot = process.cwd();
+  const resolved = path.resolve(workspaceRoot, sanitized);
+
+  // Get real path (follows symlinks) to detect symlink attacks
+  let realPath: string;
+  try {
+    // Check if file exists first
+    await fs.access(resolved);
+    realPath = await fs.realpath(resolved);
+  } catch (err) {
+    // File doesn't exist yet (for writes), check parent directory
+    const parentDir = path.dirname(resolved);
+    try {
+      const realParent = await fs.realpath(parentDir);
+      realPath = path.join(realParent, path.basename(resolved));
+    } catch {
+      // Parent doesn't exist either, use resolved path for now
+      // (will be created during write operations)
+      realPath = resolved;
+    }
+  }
+
+  // Verify the real path is within workspace
+  const relative = path.relative(workspaceRoot, realPath);
   if (relative.startsWith("..") || path.isAbsolute(relative)) {
     throw new Error("Path is outside workspace");
   }
-  return resolved;
+
+  return realPath;
 }
 
 export async function runFilesTool(input: string): Promise<string> {
@@ -26,7 +61,7 @@ export async function runFilesTool(input: string): Promise<string> {
   if (!payload.path) {
     throw new Error("Missing path for files tool");
   }
-  const resolved = resolvePath(payload.path);
+  const resolved = await resolvePath(payload.path);
 
   if (payload.action === "read") {
     return fs.readFile(resolved, "utf8");
