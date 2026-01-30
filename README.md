@@ -536,7 +536,7 @@ git push origin feature/your-feature
 
 ## 📄 License
 
-[MIT License](LICENSE) - See LICENSE file for details
+[MIT License](LICENSE.md) - See LICENSE.md for the full text (it's actually fun to read, we promise)
 
 ---
 
