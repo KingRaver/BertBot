@@ -52,7 +52,7 @@ BertBot is a secure, multi-channel AI agent gateway inspired by [OpenClaw](https
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/bertbot.git
+git clone https://github.com/KingRaver/bertbot.git
 cd bertbot
 
 # Install dependencies
