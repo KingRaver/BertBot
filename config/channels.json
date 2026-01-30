@@ -1,0 +1,14 @@
+{
+  "telegram": {
+    "enabled": false
+  },
+  "discord": {
+    "enabled": false
+  },
+  "slack": {
+    "enabled": false
+  },
+  "webchat": {
+    "enabled": true
+  }
+}

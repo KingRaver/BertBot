@@ -1,0 +1,25 @@
+import type { AppConfig } from "../types/config";
+
+export const defaultConfig: AppConfig = {
+  gateway: {
+    port: 18789
+  },
+  provider: {
+    type: "openai",
+    model: "gpt-4o-mini"
+  },
+  channels: {
+    telegram: {
+      enabled: false
+    },
+    discord: {
+      enabled: false
+    },
+    slack: {
+      enabled: false
+    },
+    webchat: {
+      enabled: true
+    }
+  }
+};
