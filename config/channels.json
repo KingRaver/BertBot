@@ -3,7 +3,8 @@
     "enabled": false
   },
   "discord": {
-    "enabled": false
+    "enabled": false,
+    "allowDMs": true
   },
   "slack": {
     "enabled": false

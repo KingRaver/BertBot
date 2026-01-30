@@ -51,22 +51,65 @@ export function loadConfig(): AppConfig {
   }
 
   const providerConfig: Record<string, unknown> = {};
-  if (process.env.OPENAI_API_KEY) {
-    providerConfig.type = "openai";
-    providerConfig.apiKey = process.env.OPENAI_API_KEY;
-    if (process.env.OPENAI_MODEL) {
-      providerConfig.model = process.env.OPENAI_MODEL;
+  const providerOverride = process.env.PROVIDER?.toLowerCase();
+
+  const providerFromEnv = (type: string) => {
+    if (type === "openai") {
+      providerConfig.type = "openai";
+      providerConfig.apiKey = process.env.OPENAI_API_KEY;
+      if (process.env.OPENAI_MODEL) {
+        providerConfig.model = process.env.OPENAI_MODEL;
+      }
     }
-  }
-  if (process.env.ANTHROPIC_API_KEY) {
-    providerConfig.type = "anthropic";
-    providerConfig.apiKey = process.env.ANTHROPIC_API_KEY;
-    if (process.env.ANTHROPIC_MODEL) {
-      providerConfig.model = process.env.ANTHROPIC_MODEL;
+
+    if (type === "anthropic") {
+      providerConfig.type = "anthropic";
+      providerConfig.apiKey = process.env.ANTHROPIC_API_KEY;
+      if (process.env.ANTHROPIC_MODEL) {
+        providerConfig.model = process.env.ANTHROPIC_MODEL;
+      }
     }
+
+    if (type === "perplexity") {
+      providerConfig.type = "perplexity";
+      providerConfig.apiKey = process.env.PERPLEXITY_API_KEY;
+      if (process.env.PERPLEXITY_MODEL) {
+        providerConfig.model = process.env.PERPLEXITY_MODEL;
+      }
+    }
+  };
+
+  if (providerOverride) {
+    providerFromEnv(providerOverride);
+  } else if (process.env.PERPLEXITY_API_KEY) {
+    providerFromEnv("perplexity");
+  } else if (process.env.OPENAI_API_KEY) {
+    providerFromEnv("openai");
+  } else if (process.env.ANTHROPIC_API_KEY) {
+    providerFromEnv("anthropic");
   }
   if (Object.keys(providerConfig).length > 0) {
     envConfig.provider = providerConfig;
+  }
+
+  if (process.env.SESSIONS_PERSIST) {
+    envConfig.sessions = {
+      ...(envConfig.sessions as Record<string, unknown> | undefined),
+      persist: process.env.SESSIONS_PERSIST === "true"
+    };
+  }
+  if (process.env.SESSIONS_DIR) {
+    envConfig.sessions = {
+      ...(envConfig.sessions as Record<string, unknown> | undefined),
+      dir: process.env.SESSIONS_DIR
+    };
+  }
+
+  if (process.env.ALLOWLIST_PATH) {
+    envConfig.security = {
+      ...(envConfig.security as Record<string, unknown> | undefined),
+      allowlistPath: process.env.ALLOWLIST_PATH
+    };
   }
 
   if (process.env.TELEGRAM_BOT_TOKEN) {
@@ -75,6 +118,16 @@ export function loadConfig(): AppConfig {
       telegram: {
         enabled: true,
         token: process.env.TELEGRAM_BOT_TOKEN
+      }
+    };
+  }
+
+  if (process.env.DISCORD_BOT_TOKEN) {
+    envConfig.channels = {
+      ...(envConfig.channels as Record<string, unknown> | undefined),
+      discord: {
+        enabled: true,
+        token: process.env.DISCORD_BOT_TOKEN
       }
     };
   }

@@ -1,9 +1,18 @@
-export type ProviderType = "openai" | "anthropic";
+export type ProviderType = "openai" | "anthropic" | "perplexity";
 
 export interface ProviderConfig {
   type: ProviderType;
   apiKey?: string;
   model?: string;
+}
+
+export interface SessionsConfig {
+  persist: boolean;
+  dir: string;
+}
+
+export interface SecurityConfig {
+  allowlistPath?: string;
 }
 
 export interface ChannelToggle {
@@ -16,6 +25,8 @@ export interface TelegramConfig extends ChannelToggle {
 
 export interface DiscordConfig extends ChannelToggle {
   token?: string;
+  allowedGuilds?: string[];
+  allowDMs?: boolean;
 }
 
 export interface SlackConfig extends ChannelToggle {
@@ -29,6 +40,8 @@ export interface AppConfig {
     port: number;
   };
   provider: ProviderConfig;
+  sessions: SessionsConfig;
+  security: SecurityConfig;
   channels: {
     telegram?: TelegramConfig;
     discord?: DiscordConfig;

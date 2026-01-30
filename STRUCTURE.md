@@ -24,10 +24,13 @@ BertBot/
 │   │   ├── runtime.ts             # Agent execution loop
 │   │   ├── context.ts             # Conversation context management
 │   │   ├── tools.ts               # Tool registry & execution
+│   │   ├── service.ts             # Agent orchestration layer
 │   │   └── providers/
 │   │       ├── anthropic.ts       # Claude integration
 │   │       ├── openai.ts          # OpenAI integration
-│   │       └── base.ts            # Provider interface
+│   │       ├── perplexity.ts      # Perplexity integration
+│   │       ├── base.ts            # Provider interface
+│   │       └── index.ts           # Provider factory
 │   │
 │   ├── channels/                   # Messaging platform integrations
 │   │   ├── telegram/
@@ -147,6 +150,7 @@ BertBot/
     "express": "^4.18.2",
     "ws": "^8.14.0",
     "grammy": "^1.21.0",
+    "discord.js": "^14.14.1",
     "@anthropic-ai/sdk": "^0.20.0",
     "openai": "^4.20.0",
     "dotenv": "^16.3.0",

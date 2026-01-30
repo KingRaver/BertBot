@@ -9,14 +9,23 @@ interface FilesToolInput {
 
 function resolvePath(targetPath: string): string {
   const resolved = path.resolve(process.cwd(), targetPath);
-  if (!resolved.startsWith(process.cwd())) {
+  const relative = path.relative(process.cwd(), resolved);
+  if (relative.startsWith("..") || path.isAbsolute(relative)) {
     throw new Error("Path is outside workspace");
   }
   return resolved;
 }
 
 export async function runFilesTool(input: string): Promise<string> {
-  const payload = JSON.parse(input) as FilesToolInput;
+  let payload: FilesToolInput;
+  try {
+    payload = JSON.parse(input) as FilesToolInput;
+  } catch (error) {
+    throw new Error("Invalid JSON for files tool");
+  }
+  if (!payload.path) {
+    throw new Error("Missing path for files tool");
+  }
   const resolved = resolvePath(payload.path);
 
   if (payload.action === "read") {

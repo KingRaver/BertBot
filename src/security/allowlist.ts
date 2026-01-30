@@ -26,8 +26,12 @@ export class Allowlist {
       return new Allowlist();
     }
 
-    const raw = fs.readFileSync(filePath, "utf8");
-    const data = JSON.parse(raw) as string[];
-    return new Allowlist(data);
+    try {
+      const raw = fs.readFileSync(filePath, "utf8");
+      const data = JSON.parse(raw) as string[];
+      return new Allowlist(Array.isArray(data) ? data : []);
+    } catch (error) {
+      return new Allowlist();
+    }
   }
 }

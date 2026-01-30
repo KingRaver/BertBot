@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const providerSchema = z.object({
-  type: z.enum(["openai", "anthropic"]),
+  type: z.enum(["openai", "anthropic", "perplexity"]),
   apiKey: z.string().optional(),
   model: z.string().optional()
 });
@@ -15,7 +15,9 @@ const telegramSchema = channelToggleSchema.extend({
 });
 
 const discordSchema = channelToggleSchema.extend({
-  token: z.string().optional()
+  token: z.string().optional(),
+  allowedGuilds: z.array(z.string()).optional(),
+  allowDMs: z.boolean().optional()
 });
 
 const slackSchema = channelToggleSchema.extend({
@@ -29,6 +31,13 @@ export const appConfigSchema = z.object({
     port: z.number().int().positive()
   }),
   provider: providerSchema,
+  sessions: z.object({
+    persist: z.boolean(),
+    dir: z.string()
+  }),
+  security: z.object({
+    allowlistPath: z.string().optional()
+  }),
   channels: z.object({
     telegram: telegramSchema.optional(),
     discord: discordSchema.optional(),

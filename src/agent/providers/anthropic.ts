@@ -1,5 +1,5 @@
 import type { AgentProvider } from "./base";
-import type { ConversationContext } from "../context";
+import type { Message } from "../../types/message";
 import { assertNonEmpty } from "../../utils/validators";
 
 export interface AnthropicProviderConfig {
@@ -17,11 +17,19 @@ export class AnthropicProvider implements AgentProvider {
     this.config = config;
   }
 
-  async complete(input: string, _context: ConversationContext): Promise<string> {
+  async complete(messages: Message[]): Promise<string> {
+    const systemMessages = messages.filter((message) => message.role === "system");
+    const userMessages = messages.filter((message) => message.role !== "system");
+    const system = systemMessages.map((message) => message.content).join("\n\n");
+
     const response = await this.client.messages.create({
       model: this.config.model ?? "claude-3-5-sonnet-20240620",
       max_tokens: 1024,
-      messages: [{ role: "user", content: input }]
+      system: system || undefined,
+      messages: userMessages.map((message) => ({
+        role: message.role,
+        content: message.content
+      }))
     });
 
     const content = response.content?.[0];

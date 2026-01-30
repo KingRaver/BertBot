@@ -2,17 +2,17 @@ import type { AgentProvider } from "./base";
 import type { Message } from "../../types/message";
 import { assertNonEmpty } from "../../utils/validators";
 
-export interface OpenAIProviderConfig {
+export interface PerplexityProviderConfig {
   apiKey?: string;
   model?: string;
 }
 
-export class OpenAIProvider implements AgentProvider {
-  id = "openai";
+export class PerplexityProvider implements AgentProvider {
+  id = "perplexity";
   private client: any;
-  private config: OpenAIProviderConfig;
+  private config: PerplexityProviderConfig;
 
-  constructor(client: any, config: OpenAIProviderConfig) {
+  constructor(client: any, config: PerplexityProviderConfig) {
     this.client = client;
     this.config = config;
   }
@@ -23,7 +23,7 @@ export class OpenAIProvider implements AgentProvider {
       content: message.content
     }));
     const response = await this.client.chat.completions.create({
-      model: this.config.model ?? "gpt-4o-mini",
+      model: this.config.model ?? "sonar-pro",
       messages: payload
     });
 
@@ -31,10 +31,10 @@ export class OpenAIProvider implements AgentProvider {
   }
 }
 
-export async function createOpenAIProvider(config: OpenAIProviderConfig): Promise<AgentProvider> {
+export async function createPerplexityProvider(config: PerplexityProviderConfig): Promise<AgentProvider> {
   const mod = await import("openai");
   const OpenAI = (mod as any).default ?? (mod as any).OpenAI ?? mod;
-  const apiKey = assertNonEmpty(config.apiKey, "OPENAI_API_KEY");
-  const client = new OpenAI({ apiKey });
-  return new OpenAIProvider(client, config);
+  const apiKey = assertNonEmpty(config.apiKey, "PERPLEXITY_API_KEY");
+  const client = new OpenAI({ apiKey, baseURL: "https://api.perplexity.ai" });
+  return new PerplexityProvider(client, config);
 }

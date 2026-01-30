@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import type { Message } from "../types/message";
 import type { Session } from "./types";
 import { SessionStore } from "./store";
@@ -10,10 +9,10 @@ export class SessionManager {
     this.store = store;
   }
 
-  async create(): Promise<Session> {
+  private async create(sessionId: string): Promise<Session> {
     const now = new Date().toISOString();
     const session: Session = {
-      id: randomUUID(),
+      id: sessionId,
       createdAt: now,
       updatedAt: now,
       messages: []
@@ -21,6 +20,16 @@ export class SessionManager {
 
     await this.store.save(session);
     return session;
+  }
+
+  async getOrCreate(channel: string, userId: string): Promise<Session> {
+    const sessionId = `${channel}:${userId}`;
+    const existing = await this.store.load(sessionId);
+    if (existing) {
+      return existing;
+    }
+
+    return this.create(sessionId);
   }
 
   async addMessage(session: Session, message: Message): Promise<Session> {

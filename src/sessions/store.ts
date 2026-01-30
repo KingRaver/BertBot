@@ -10,8 +10,33 @@ export class SessionStore {
     this.persistDir = persistDir;
   }
 
+  private toFileName(sessionId: string): string {
+    return encodeURIComponent(sessionId).replace(/%/g, "_");
+  }
+
   get(sessionId: string): Session | undefined {
     return this.sessions.get(sessionId);
+  }
+
+  async load(sessionId: string): Promise<Session | undefined> {
+    const cached = this.sessions.get(sessionId);
+    if (cached) {
+      return cached;
+    }
+
+    if (!this.persistDir) {
+      return undefined;
+    }
+
+    const filePath = path.join(this.persistDir, `${this.toFileName(sessionId)}.json`);
+    try {
+      const raw = await fs.readFile(filePath, "utf8");
+      const session = JSON.parse(raw) as Session;
+      this.sessions.set(sessionId, session);
+      return session;
+    } catch (error) {
+      return undefined;
+    }
   }
 
   list(): Session[] {
@@ -25,7 +50,7 @@ export class SessionStore {
       return;
     }
 
-    const filePath = path.join(this.persistDir, `${session.id}.json`);
+    const filePath = path.join(this.persistDir, `${this.toFileName(session.id)}.json`);
     await fs.mkdir(this.persistDir, { recursive: true });
     await fs.writeFile(filePath, JSON.stringify(session, null, 2), "utf8");
   }

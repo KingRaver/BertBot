@@ -1,12 +1,14 @@
 import express from "express";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
-import { handleMessage } from "./handler";
+import { handleMessage, type GatewayHandlerDeps } from "./handler";
 import type { GatewayMessage } from "./types";
 import { logger } from "../utils/logger";
+import { randomUUID } from "crypto";
 
 export interface GatewayConfig {
   port: number;
+  handler?: GatewayHandlerDeps;
 }
 
 export interface GatewayInstance {
@@ -20,13 +22,19 @@ export function createGateway(config: GatewayConfig): GatewayInstance {
   const app = express();
   const server = createServer(app);
   const wss = new WebSocketServer({ server });
+  const handler = config.handler ?? {};
 
   wss.on("connection", (socket) => {
-    socket.on("message", (data) => {
+    const connectionId = randomUUID();
+    socket.on("message", async (data) => {
       const text = data.toString();
       try {
         const parsed = JSON.parse(text) as GatewayMessage;
-        handleMessage({ socket }, parsed);
+        await handleMessage({ socket }, parsed, {
+          ...handler,
+          defaultUserId: connectionId,
+          defaultChannel: "webchat"
+        });
       } catch (error) {
         logger.warn("Invalid gateway message", error);
         socket.send(JSON.stringify({ type: "error", error: "Invalid message" }));

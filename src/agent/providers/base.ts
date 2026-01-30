@@ -1,6 +1,6 @@
-import type { ConversationContext } from "../context";
+import type { Message } from "../../types/message";
 
 export interface AgentProvider {
   id: string;
-  complete(input: string, context: ConversationContext): Promise<string>;
+  complete(messages: Message[]): Promise<string>;
 }

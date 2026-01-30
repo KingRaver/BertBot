@@ -8,13 +8,16 @@
   </head>
   <body>
     <main class="shell">
-      <header>
-        <h1>BertBot</h1>
-        <p>WebChat connected to the gateway.</p>
+      <header class="hero">
+        <div>
+          <h1>BertBot</h1>
+          <p>WebChat connected to your gateway.</p>
+        </div>
+        <span class="status" id="status">connecting</span>
       </header>
       <section class="chat" id="chat"></section>
-      <form id="chat-form">
-        <input id="chat-input" type="text" placeholder="Say something..." autocomplete="off" />
+      <form id="chat-form" autocomplete="off">
+        <input id="chat-input" type="text" placeholder="Ask me anything..." />
         <button type="submit">Send</button>
       </form>
     </main>

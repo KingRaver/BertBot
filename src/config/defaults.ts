@@ -5,15 +5,23 @@ export const defaultConfig: AppConfig = {
     port: 18789
   },
   provider: {
-    type: "openai",
-    model: "gpt-4o-mini"
+    type: "perplexity",
+    model: "sonar-pro"
+  },
+  sessions: {
+    persist: false,
+    dir: "data/sessions"
+  },
+  security: {
+    allowlistPath: ""
   },
   channels: {
     telegram: {
       enabled: false
     },
     discord: {
-      enabled: false
+      enabled: false,
+      allowDMs: true
     },
     slack: {
       enabled: false

@@ -6,4 +6,6 @@
 
 ## Notes
 - The WebChat static files are served from `src/` in dev and `dist/` in production.
-- Tooling is minimal by design; add tests and hardening as you grow.
+- Tool calling is implemented via a lightweight JSON protocol to stay provider-agnostic.
+- Session persistence is opt-in via config (`sessions.persist`).
+- The system prompt is loaded from `workspace/AGENTS.md` if present.
