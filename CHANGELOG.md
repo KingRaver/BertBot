@@ -7,6 +7,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Short-Term Improvements (2026-01-31)
+
+#### Session Management
+
+- **Session TTL and Automatic Cleanup** - Prevents memory leaks in long-running processes
+  - Default TTL: 24 hours of inactivity
+  - Configurable TTL and cleanup interval
+  - Automatic cleanup runs every hour by default
+  - `lastAccessed` timestamp tracking on all session operations
+  - Backward compatible with existing session files
+  - Graceful cleanup prevents event loop blocking
+  - Files: `src/sessions/types.ts`, `src/sessions/store.ts`, `src/sessions/manager.ts`
+  - Tests: `tests/sessions/store.test.ts` (10 new tests)
+  - Test coverage: 98 total tests (88 security + 10 session)
+
+#### Error Handling
+
+- **Standardized Error Handling** - Consistent error responses across all channels
+  - Centralized error codes: `INVALID_INPUT`, `RATE_LIMITED`, `SECURITY_VIOLATION`, etc.
+  - `AppError`/`BertBotError` class with error codes, details, and retryability flag
+  - `toErrorResponse()` utility for consistent error formatting
+  - `getUserMessage()` for user-friendly error messages
+  - `isFatalError()` and `isRecoverableError()` for error classification
+  - Fail-fast for critical services (Telegram, Discord)
+  - Structured error logging with context (userId, clientIP, etc.)
+  - Files: `src/utils/errors.ts`, `src/gateway/handler.ts`, `src/gateway/server.ts`, `src/channels/telegram/handlers.ts`, `src/channels/discord/handlers.ts`, `src/index.ts`
+  - Gateway responses now include error codes and retryability information
+
+#### Documentation
+
+- **API Documentation** - Comprehensive WebSocket API specification
+  - Complete protocol documentation for WebSocket gateway
+  - Error code reference with descriptions and user messages
+  - Rate limiting documentation
+  - Client implementation examples (JavaScript, Python)
+  - Security considerations and troubleshooting guide
+  - File: `API.md`
+
+- **Deployment Guide** - Production deployment documentation
+  - Docker deployment with Dockerfile and docker-compose.yml
+  - Systemd service configuration with security hardening
+  - PM2 process manager setup with monitoring
+  - Nginx reverse proxy configuration with SSL/TLS
+  - Caddy alternative configuration
+  - Security hardening checklist (firewall, permissions, Fail2Ban)
+  - Monitoring and logging setup
+  - Health checks and troubleshooting
+  - File: `DEPLOYMENT.md`
+
+#### Security Enhancements
+
+- **Pairing Code Security** - Enhanced pairing code system with cryptographic security
+  - Minimum 8 characters (up from 6) - prevents brute force attacks
+  - Cryptographically secure random generation using `crypto.randomBytes()`
+  - Configurable character sets: numeric, alphanumeric, alphanumeric-upper (default)
+  - Time-based expiration (default: 5 minutes, configurable)
+  - Timing-safe comparison using `crypto.timingSafeEqual()` prevents timing attacks
+  - Helper functions: `isExpired()`, `getTimeRemaining()`, `formatTimeRemaining()`
+  - Metadata support for user identification and custom data
+  - 41+ bits of entropy (8 chars, 36-char alphabet = 2.8 trillion combinations)
+  - File: `src/security/pairing.ts`
+  - Tests: `tests/security/pairing.test.ts` (33 comprehensive tests)
+  - Total test count: 131 tests (88 security + 10 sessions + 33 pairing)
+
 ### Added - Security Hardening (2026-01-30)
 
 #### Critical Security Fixes
@@ -39,11 +103,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Security Testing
 
-- **Comprehensive Test Suite** - 88 security tests with 87.85% code coverage
+- **Comprehensive Test Suite** - 98 tests across 4 suites
   - Bash sandbox: 37 tests covering bypass attempts, command injection, case sensitivity
   - File tool: 21 tests covering path traversal, symlink attacks, validation
   - HTTP tool: 30 tests covering SSRF, protocol validation, size limits, timeouts
-  - Files: `tests/security/sandbox.test.ts`, `tests/security/files.test.ts`, `tests/security/http.test.ts`
+  - Session store: 10 tests covering TTL, cleanup, backward compatibility
+  - Files: `tests/security/sandbox.test.ts`, `tests/security/files.test.ts`, `tests/security/http.test.ts`, `tests/sessions/store.test.ts`
 
 - **Test Infrastructure** - Added Jest testing framework
   - Jest 29.0.0 (Node 18 compatible)

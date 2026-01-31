@@ -29,8 +29,18 @@ export interface DiscordConfig extends ChannelToggle {
   allowDMs?: boolean;
 }
 
+export type SlackMode = "socket" | "http";
+
 export interface SlackConfig extends ChannelToggle {
   token?: string;
+  appToken?: string;
+  signingSecret?: string;
+  mode?: SlackMode;
+  allowedChannels?: string[];
+  allowDMs?: boolean;
+  mentionOnly?: boolean;
+  respondInThread?: boolean;
+  ignoreBots?: boolean;
 }
 
 export interface WebChatConfig extends ChannelToggle {}

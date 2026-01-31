@@ -24,7 +24,13 @@ export const defaultConfig: AppConfig = {
       allowDMs: true
     },
     slack: {
-      enabled: false
+      enabled: false,
+      mode: "socket",
+      allowDMs: true,
+      mentionOnly: false,
+      respondInThread: true,
+      ignoreBots: true,
+      allowedChannels: []
     },
     webchat: {
       enabled: true

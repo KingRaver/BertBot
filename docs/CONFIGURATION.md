@@ -10,6 +10,15 @@ Primary config lives in `config/agent.json` and can be overridden by environment
 - `PERPLEXITY_API_KEY` / `PERPLEXITY_MODEL`
 - `TELEGRAM_BOT_TOKEN`
 - `DISCORD_BOT_TOKEN`
+- `SLACK_BOT_TOKEN`
+- `SLACK_APP_TOKEN`
+- `SLACK_SIGNING_SECRET`
+- `SLACK_MODE` (`socket` or `http`)
+- `SLACK_ALLOWED_CHANNELS` (comma-separated)
+- `SLACK_ALLOW_DMS` (true/false)
+- `SLACK_MENTION_ONLY` (true/false)
+- `SLACK_RESPOND_IN_THREAD` (true/false)
+- `SLACK_IGNORE_BOTS` (true/false)
 - `SESSIONS_PERSIST` (true/false)
 - `SESSIONS_DIR`
 - `ALLOWLIST_PATH`
@@ -24,10 +33,21 @@ Primary config lives in `config/agent.json` and can be overridden by environment
   "channels": {
     "telegram": { "enabled": false },
     "discord": { "enabled": false, "allowDMs": true, "allowedGuilds": [] },
+    "slack": {
+      "enabled": false,
+      "mode": "socket",
+      "allowDMs": true,
+      "mentionOnly": false,
+      "respondInThread": true,
+      "ignoreBots": true,
+      "allowedChannels": []
+    },
     "webchat": { "enabled": true }
   }
 }
 ```
+
+Slack channel lists should use channel IDs (e.g., `C0123456789`).
 
 ## Allowlist Format
 The allowlist file is JSON array of user IDs, for example:

@@ -29,6 +29,24 @@ function deepMerge(base: Record<string, unknown>, override: Record<string, unkno
   return output;
 }
 
+function parseBoolean(value: string | undefined): boolean | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  return value.toLowerCase() === "true";
+}
+
+function parseList(value: string | undefined): string[] | undefined {
+  if (!value) {
+    return undefined;
+  }
+  const items = value
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+  return items.length > 0 ? items : undefined;
+}
+
 export function loadConfig(): AppConfig {
   dotenv.config();
 
@@ -129,6 +147,50 @@ export function loadConfig(): AppConfig {
         enabled: true,
         token: process.env.DISCORD_BOT_TOKEN
       }
+    };
+  }
+
+  const slackEnv: Record<string, unknown> = {};
+  if (process.env.SLACK_BOT_TOKEN) {
+    slackEnv.enabled = true;
+    slackEnv.token = process.env.SLACK_BOT_TOKEN;
+  }
+  if (process.env.SLACK_APP_TOKEN) {
+    slackEnv.appToken = process.env.SLACK_APP_TOKEN;
+  }
+  if (process.env.SLACK_SIGNING_SECRET) {
+    slackEnv.signingSecret = process.env.SLACK_SIGNING_SECRET;
+  }
+  if (process.env.SLACK_MODE) {
+    const mode = process.env.SLACK_MODE.toLowerCase();
+    if (mode === "socket" || mode === "http") {
+      slackEnv.mode = mode;
+    }
+  }
+  const slackChannels = parseList(process.env.SLACK_ALLOWED_CHANNELS);
+  if (slackChannels) {
+    slackEnv.allowedChannels = slackChannels;
+  }
+  const slackAllowDMs = parseBoolean(process.env.SLACK_ALLOW_DMS);
+  if (slackAllowDMs !== undefined) {
+    slackEnv.allowDMs = slackAllowDMs;
+  }
+  const slackMentionOnly = parseBoolean(process.env.SLACK_MENTION_ONLY);
+  if (slackMentionOnly !== undefined) {
+    slackEnv.mentionOnly = slackMentionOnly;
+  }
+  const slackRespondInThread = parseBoolean(process.env.SLACK_RESPOND_IN_THREAD);
+  if (slackRespondInThread !== undefined) {
+    slackEnv.respondInThread = slackRespondInThread;
+  }
+  const slackIgnoreBots = parseBoolean(process.env.SLACK_IGNORE_BOTS);
+  if (slackIgnoreBots !== undefined) {
+    slackEnv.ignoreBots = slackIgnoreBots;
+  }
+  if (Object.keys(slackEnv).length > 0) {
+    envConfig.channels = {
+      ...(envConfig.channels as Record<string, unknown> | undefined),
+      slack: slackEnv
     };
   }
 

@@ -21,7 +21,15 @@ const discordSchema = channelToggleSchema.extend({
 });
 
 const slackSchema = channelToggleSchema.extend({
-  token: z.string().optional()
+  token: z.string().optional(),
+  appToken: z.string().optional(),
+  signingSecret: z.string().optional(),
+  mode: z.enum(["socket", "http"]).optional(),
+  allowedChannels: z.array(z.string()).optional(),
+  allowDMs: z.boolean().optional(),
+  mentionOnly: z.boolean().optional(),
+  respondInThread: z.boolean().optional(),
+  ignoreBots: z.boolean().optional()
 });
 
 const webchatSchema = channelToggleSchema;

@@ -2,7 +2,7 @@
 
 **Production-ready AI agent gateway with enterprise-grade security**
 
-BertBot is a secure, multi-channel AI agent gateway inspired by [OpenClaw](https://github.com/openclaw/openclaw), optimized for Node.js 18+ and macOS Big Sur compatibility. It provides a unified interface for multiple AI providers (OpenAI, Anthropic, Perplexity) across various messaging platforms (Telegram, Discord, WebChat).
+BertBot is a secure, multi-channel AI agent gateway inspired by [OpenClaw](https://github.com/openclaw/openclaw), optimized for Node.js 18+ and macOS Big Sur compatibility. It provides a unified interface for multiple AI providers (OpenAI, Anthropic, Perplexity) across various messaging platforms (Telegram, Discord, WebChat, Slack).
 
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
@@ -18,14 +18,15 @@ BertBot is a secure, multi-channel AI agent gateway inspired by [OpenClaw](https
 - **SSRF Protection** - Blocks localhost, private IPs, and AWS metadata endpoints
 - **Path Traversal Prevention** - Symlink resolution and workspace boundary enforcement
 - **Session Encryption** - AES-256-GCM encryption for conversation data at rest
+- **Session TTL** - Automatic cleanup of inactive sessions (24h default, configurable)
 - **Rate Limiting** - Intelligent per-IP rate limiting (60 msg/min, 5 connections)
-- **87.85% Test Coverage** - Comprehensive security test suite (88 tests)
+- **Test Coverage** - Comprehensive security test suite (131 tests, 5 suites)
 
 ### 🎯 Core Capabilities
 - **Multi-Provider Support** - OpenAI (GPT), Anthropic (Claude), Perplexity
-- **Multi-Channel** - Telegram, Discord, WebChat, Slack (coming soon)
+- **Multi-Channel** - Telegram, Discord, WebChat, Slack (socket or HTTP mode)
 - **Tool System** - Bash commands, file operations, HTTP requests
-- **Session Management** - Persistent conversation history with encryption
+- **Session Management** - Persistent conversation history with encryption and automatic cleanup
 - **Structured Logging** - Production-grade logging with Pino
 - **WebSocket Gateway** - Real-time bidirectional communication
 
@@ -173,6 +174,15 @@ npm start
    DISCORD_BOT_TOKEN=MTIzNDU2Nzg5MDEyMzQ1Njc4OQ.GaBcDe.Fg_HiJkLmNoPqRsTuVwXyZ...
    ```
 
+   **Slack**
+   ```bash
+   # Bot token (xoxb-...)
+   SLACK_BOT_TOKEN=xoxb-...
+   # Socket mode app token (xapp-...) OR signing secret for HTTP mode
+   SLACK_APP_TOKEN=xapp-...
+   SLACK_SIGNING_SECRET=...
+   ```
+
 7. **Customize Agent Behavior** (Optional)
 
    Edit `config/agent.json`:
@@ -246,6 +256,8 @@ npm run test:coverage
 ## 📚 Documentation
 
 ### Core Documentation
+- **[API.md](API.md)** - WebSocket API and protocol specification ✨ NEW
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production deployment guide (Docker, systemd, PM2, Nginx) ✨ NEW
 - **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
 - **[SECURITY.md](SECURITY.md)** - Security policy and best practices
 - **[AUDIT.md](AUDIT.md)** - Security audit report and findings
@@ -288,7 +300,7 @@ BertBot has undergone comprehensive security hardening. See [SECURITY.md](SECURI
 | Data Protection | 9/10 | ✅ Excellent |
 | SSRF Protection | 9/10 | ✅ Excellent |
 | Code Injection | 9/10 | ✅ Excellent |
-| Test Coverage | 9/10 | ✅ 87.85% |
+| Test Coverage | 9/10 | ✅ 131 tests |
 | **Overall** | **9/10** | ✅ **Production Ready** |
 
 ### Security Features
@@ -297,9 +309,10 @@ BertBot has undergone comprehensive security hardening. See [SECURITY.md](SECURI
 - ✅ **Path Validation** - Prevents directory traversal and symlink attacks
 - ✅ **SSRF Prevention** - Blocks private IPs, localhost, AWS metadata
 - ✅ **Session Encryption** - AES-256-GCM with PBKDF2 key derivation
+- ✅ **Session TTL** - Automatic cleanup of inactive sessions (prevents memory leaks)
 - ✅ **Rate Limiting** - 60 msg/min, 5 concurrent connections per IP
 - ✅ **Structured Logging** - Pino with no sensitive data exposure
-- ✅ **88 Security Tests** - Comprehensive test coverage
+- ✅ **131 Tests** - Comprehensive test coverage (security, sessions, pairing)
 
 ### Production Checklist
 
@@ -391,10 +404,13 @@ BertBot has comprehensive test coverage focusing on security.
 
 ```
 tests/
-└── security/
-    ├── sandbox.test.ts   # Bash sandbox tests (37 tests)
-    ├── files.test.ts     # File access tests (21 tests)
-    └── http.test.ts      # HTTP/SSRF tests (30 tests)
+├── security/
+│   ├── sandbox.test.ts   # Bash sandbox tests (37 tests)
+│   ├── files.test.ts     # File access tests (21 tests)
+│   ├── http.test.ts      # HTTP/SSRF tests (30 tests)
+│   └── pairing.test.ts   # Pairing code tests (33 tests)
+└── sessions/
+    └── store.test.ts     # Session TTL tests (10 tests)
 ```
 
 ### Running Tests
@@ -413,12 +429,13 @@ npm run test:coverage
 ### Coverage Report
 
 ```
-File         | % Stmts | % Branch | % Funcs | % Lines
--------------|---------|----------|---------|--------
-All files    |   87.85 |    73.33 |   69.23 |   90.97
- sandbox.ts  |   73.80 |    63.33 |      50 |   81.08
- files.ts    |   94.59 |    81.81 |     100 |   94.59
- http.ts     |   93.44 |    84.21 |      80 |   94.91
+Test Suites: 5 passed, 5 total
+Tests:       131 passed, 131 total
+
+Test breakdown:
+- Security: 88 tests (sandbox, files, HTTP)
+- Sessions: 10 tests (TTL, cleanup)
+- Pairing: 33 tests (security, expiration)
 ```
 
 ---
@@ -437,7 +454,7 @@ BertBot uses a modular, event-driven architecture with clear separation of conce
                   │
 ┌─────────────────▼───────────────────────────────────────┐
 │                    Channel Layer                         │
-│  (Telegram, Discord, WebChat, Slack*)                   │
+│  (Telegram, Discord, WebChat, Slack)                    │
 └─────────────────┬───────────────────────────────────────┘
                   │
 ┌─────────────────▼───────────────────────────────────────┐
@@ -497,7 +514,7 @@ git push origin feature/your-feature
 
 ### Completed ✅
 - [x] Multi-provider AI support (OpenAI, Anthropic, Perplexity)
-- [x] Multi-channel messaging (Telegram, Discord, WebChat)
+- [x] Multi-channel messaging (Telegram, Discord, WebChat, Slack)
 - [x] Security hardening (sandbox, SSRF, encryption)
 - [x] Comprehensive test coverage (87.85%)
 - [x] Rate limiting and abuse prevention
@@ -512,7 +529,6 @@ git push origin feature/your-feature
 - [ ] User-configurable tool restrictions (Task #13)
 
 ### Future 🎯
-- [ ] Slack integration (channel stub exists)
 - [ ] Multi-tenancy support
 - [ ] Admin dashboard
 - [ ] Kubernetes deployment
@@ -525,9 +541,9 @@ git push origin feature/your-feature
 ## 📊 Project Stats
 
 - **Lines of Code**: ~1,366 TypeScript
-- **Test Coverage**: 87.85%
-- **Security Tests**: 88 tests
-- **Dependencies**: 9 production, 8 development
+- **Test Suites**: 5 suites, 131 tests
+- **Security Tests**: 121 tests (sandbox, files, HTTP, sessions, pairing)
+- **Dependencies**: 11 production, 9 development
 - **Security Score**: 9/10
 - **Node.js**: 18+ required
 - **TypeScript**: 5.3.0
@@ -558,6 +574,8 @@ git push origin feature/your-feature
 
 ## 🌟 Quick Links
 
+- **[API Documentation](API.md)** - WebSocket protocol and examples ✨ NEW
+- **[Deployment Guide](DEPLOYMENT.md)** - Production deployment (Docker, systemd, PM2, Nginx) ✨ NEW
 - [Security Policy](SECURITY.md)
 - [Security Audit](AUDIT.md)
 - [Changelog](CHANGELOG.md)

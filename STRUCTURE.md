@@ -56,8 +56,8 @@ BertBot/
 │   │   │   └── commands.ts          # Slash commands
 │   │   │
 │   │   ├── slack/
-│   │   │   ├── bot.ts               # Slack Bolt app (stub)
-│   │   │   └── handlers.ts          # Event handlers (stub)
+│   │   │   ├── bot.ts               # Slack Bolt app (socket/http)
+│   │   │   └── handlers.ts          # Event handlers + slash commands
 │   │   │
 │   │   └── webchat/
 │   │       ├── server.ts            # WebSocket endpoint
@@ -155,7 +155,7 @@ BertBot follows a **layered, event-driven architecture** with clear separation o
                   │
 ┌─────────────────▼───────────────────────────────────────┐
 │                   Channel Layer                          │
-│  Telegram (Grammy) | Discord.js | WebChat | Slack*      │
+│  Telegram (Grammy) | Discord.js | WebChat | Slack       │
 │  Platform-specific message handling                      │
 └─────────────────┬───────────────────────────────────────┘
                   │
@@ -194,7 +194,7 @@ BertBot follows a **layered, event-driven architecture** with clear separation o
   - **Telegram**: Grammy framework (full support)
   - **Discord**: Discord.js v14 (full support)
   - **WebChat**: Custom WebSocket + HTML/CSS/JS UI (full support)
-  - **Slack**: Bolt framework stubs (planned)
+  - **Slack**: Bolt framework (socket + HTTP mode)
 - **Features**:
   - Unified message interface
   - Platform-specific command handling
@@ -548,7 +548,7 @@ Configured paths:
 - Production-grade encryption and sandboxing
 
 ### 2. Simplicity Over Complexity
-- Minimal dependencies (9 production deps)
+- Minimal dependencies (11 production deps)
 - Clear separation of concerns
 - No over-engineering
 - Easy to understand and maintain

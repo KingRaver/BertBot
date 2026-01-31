@@ -16,3 +16,4 @@ Open WebChat at `http://localhost:18789/webchat`.
 ## Channels
 - Telegram: set `TELEGRAM_BOT_TOKEN` and enable it in `config/agent.json`.
 - Discord: set `DISCORD_BOT_TOKEN` and enable it in `config/agent.json`.
+- Slack: set `SLACK_BOT_TOKEN` and enable it in `config/agent.json` (plus `SLACK_APP_TOKEN` for socket mode or `SLACK_SIGNING_SECRET` for HTTP mode).

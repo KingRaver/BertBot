@@ -1,6 +1,8 @@
 import type { Client, Message } from "discord.js";
-import type { AgentService } from "../../agent/service";
+import type { AgentService } from "@agent/service";
 import type { DiscordChannelConfig } from "./bot";
+import { getUserMessage } from "@utils/errors";
+import { logger } from "@utils/logger";
 
 function isAllowedGuild(config: DiscordChannelConfig, message: Message): boolean {
   if (!message.guild || !config.allowedGuilds || config.allowedGuilds.length === 0) {
@@ -39,7 +41,8 @@ export function registerDiscordHandlers(client: Client, agent: AgentService, con
         await message.reply(chunk);
       }
     } catch (error) {
-      await message.reply("Sorry, something went wrong.");
+      logger.error("Discord handler error", { error, userId: message.author.id, text: text.substring(0, 100) });
+      await message.reply(getUserMessage(error));
     }
   });
 }

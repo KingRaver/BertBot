@@ -16,7 +16,15 @@
   "channels": {
     "telegram": { "enabled": false },
     "discord": { "enabled": false, "allowDMs": true },
-    "slack": { "enabled": false },
+    "slack": {
+      "enabled": false,
+      "mode": "socket",
+      "allowDMs": true,
+      "mentionOnly": false,
+      "respondInThread": true,
+      "ignoreBots": true,
+      "allowedChannels": []
+    },
     "webchat": { "enabled": true }
   }
 }

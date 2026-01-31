@@ -6,4 +6,5 @@ export type GatewayResponse =
   | { type: "pong"; id?: string }
   | { type: "ack"; received: boolean }
   | { type: "message"; text: string }
-  | { type: "error"; error: string };
+  | { type: "error"; error: string }
+  | { type: "error"; code: string; message: string; details?: unknown; retryable?: boolean };

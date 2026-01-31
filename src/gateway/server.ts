@@ -7,6 +7,7 @@ import type { GatewayMessage } from "./types";
 import { logger } from "@utils/logger";
 import { RateLimiter } from "@security/ratelimit";
 import { randomUUID } from "crypto";
+import { AppError, ErrorCode } from "@utils/errors";
 
 export interface GatewayConfig {
   port: number;
@@ -58,10 +59,13 @@ export function createGateway(config: GatewayConfig): GatewayInstance {
 
     // Check connection limit
     if (rateLimiter && !rateLimiter.trackConnection(clientIP)) {
-      socket.send(JSON.stringify({
-        type: "error",
-        error: "Too many connections from your IP. Please try again later."
-      }));
+      const err = new AppError(
+        "Too many connections from your IP. Please try again later.",
+        ErrorCode.RATE_LIMITED,
+        undefined,
+        true
+      );
+      socket.send(JSON.stringify(err.toResponse()));
       socket.close();
       return;
     }
@@ -73,11 +77,13 @@ export function createGateway(config: GatewayConfig): GatewayInstance {
       if (rateLimiter) {
         const { allowed, retryAfter } = rateLimiter.checkMessage(clientIP);
         if (!allowed) {
-          socket.send(JSON.stringify({
-            type: "error",
-            error: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
-            retryAfter
-          }));
+          const err = new AppError(
+            `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
+            ErrorCode.RATE_LIMITED,
+            { retryAfter },
+            true
+          );
+          socket.send(JSON.stringify(err.toResponse()));
           return;
         }
       }
@@ -91,8 +97,9 @@ export function createGateway(config: GatewayConfig): GatewayInstance {
           defaultChannel: "webchat"
         });
       } catch (error) {
-        logger.warn("Invalid gateway message", error);
-        socket.send(JSON.stringify({ type: "error", error: "Invalid message" }));
+        logger.warn("Invalid gateway message", { error, clientIP, connectionId });
+        const err = new AppError("Invalid message format", ErrorCode.INVALID_MESSAGE);
+        socket.send(JSON.stringify(err.toResponse()));
       }
     });
 

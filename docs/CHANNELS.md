@@ -15,4 +15,11 @@
 Enabled by default. Open `http://localhost:18789/webchat` after starting the gateway.
 
 ## Slack
-Stubs exist, but SDKs are not installed by default. Add `@slack/bolt` and implement handlers.
+- Install the Slack app and set `SLACK_BOT_TOKEN`.
+- For Socket Mode, set `SLACK_APP_TOKEN` and `SLACK_MODE=socket`.
+- For HTTP mode, set `SLACK_SIGNING_SECRET` and `SLACK_MODE=http`, then configure the Events URL to `https://<host>/slack/events`.
+- Enable Slack in `config/agent.json`.
+- Optional controls: `allowedChannels`, `allowDMs`, `mentionOnly`, `respondInThread`, `ignoreBots`.
+- `allowedChannels` expects Slack channel IDs (e.g., `C0123456789`).
+- Slash command `/bert` is supported once configured in Slack.
+- Recommended scopes: `chat:write`, `commands`, `app_mentions:read`, `im:history`, `channels:history` (plus `groups:history`/`mpim:history` if needed).

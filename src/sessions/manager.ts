@@ -15,6 +15,7 @@ export class SessionManager {
       id: sessionId,
       createdAt: now,
       updatedAt: now,
+      lastAccessed: Date.now(),
       messages: []
     };
 
