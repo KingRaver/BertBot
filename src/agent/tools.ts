@@ -2,8 +2,10 @@ import { ToolRegistry } from "../tools";
 import { runBashTool } from "../tools/bash";
 import { runFilesTool } from "../tools/files";
 import { runHttpTool } from "../tools/http";
+import type { AppConfig } from "../types/config";
+import { createNotionTool } from "../tools/notion";
 
-export function createDefaultToolRegistry(): ToolRegistry {
+export function createDefaultToolRegistry(config?: AppConfig): ToolRegistry {
   const registry = new ToolRegistry();
 
   registry.register({
@@ -23,6 +25,14 @@ export function createDefaultToolRegistry(): ToolRegistry {
     description: "Make HTTP requests",
     run: runHttpTool
   });
+
+  if (config?.notion?.enabled) {
+    registry.register({
+      name: "notion",
+      description: "Interact with Notion (search, create, update, append blocks)",
+      run: createNotionTool(config.notion)
+    });
+  }
 
   return registry;
 }

@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Channels & Integrations (2026-01-31)
+
+#### Slack Integration
+
+- **Slack Channel (Bolt)** - Full Slack support with socket and HTTP modes
+  - Socket mode (`SLACK_APP_TOKEN`) and HTTP mode (`SLACK_SIGNING_SECRET`)
+  - Supports app mentions, direct messages, and slash command `/bert`
+  - Optional controls: `allowedChannels`, `allowDMs`, `mentionOnly`, `respondInThread`, `ignoreBots`
+  - Express route mounted at `/slack/events` for HTTP mode
+  - Files: `src/channels/slack/bot.ts`, `src/channels/slack/handlers.ts`, `src/index.ts`
+  - Config: `src/types/config.ts`, `src/config/schema.ts`, `src/config/defaults.ts`, `src/config/loader.ts`
+  - Docs: `docs/CHANNELS.md`, `docs/CONFIGURATION.md`, `docs/SETUP.md`, `README.md`, `STRUCTURE.md`
+  - Dependency: `@slack/bolt@^3.17.0`
+
+#### Microsoft Teams Integration
+
+- **Teams Channel (Bot Framework)** - Teams bot support via Azure Bot Service
+  - HTTP endpoint (default `/teams/messages`) registered on the gateway
+  - Supports personal, group, and channel conversations
+  - Optional controls: `allowedTeams`, `allowedChannels`, `allowPersonal`, `allowGroup`, `allowChannel`, `mentionOnly`, `ignoreBots`
+  - Requires `TEAMS_APP_ID` and `TEAMS_APP_PASSWORD`
+  - Files: `src/channels/teams/bot.ts`, `src/channels/teams/handlers.ts`, `src/index.ts`
+  - Config: `src/types/config.ts`, `src/config/schema.ts`, `src/config/defaults.ts`, `src/config/loader.ts`
+  - Docs: `docs/CHANNELS.md`, `docs/CONFIGURATION.md`, `docs/SETUP.md`, `README.md`, `STRUCTURE.md`
+  - Dependency: `botbuilder@^4.23.0`
+
+#### Signal Integration
+
+- **Signal Channel (signal-cli bridge)** - Local Signal messaging via `signal-cli`
+  - Listener uses `signal-cli receive --json`, sender uses `signal-cli send`
+  - Optional controls: `allowedRecipients`, `allowedGroups`, `allowDMs`, `allowGroups`, `mentionOnly`, `commandPrefix`, `ignoreOwn`
+  - Requires `SIGNAL_ACCOUNT`, optional `SIGNAL_CLI_PATH`
+  - Files: `src/channels/signal/bot.ts`, `src/index.ts`
+  - Config: `src/types/config.ts`, `src/config/schema.ts`, `src/config/defaults.ts`, `src/config/loader.ts`
+  - Docs: `docs/CHANNELS.md`, `docs/CONFIGURATION.md`, `docs/SETUP.md`, `README.md`, `STRUCTURE.md`
+
+#### Notion Tool Integration
+
+- **Notion Tool** - Search, query, create, update pages and append blocks
+  - Actions: `search`, `queryDatabase`, `getPage`, `createPage`, `updatePage`, `appendBlock`
+  - Optional defaults: `NOTION_DATABASE_ID`, `NOTION_DEFAULT_PARENT_ID`
+  - Tool only enabled when `notion.enabled` is true
+  - Files: `src/tools/notion.ts`, `src/agent/tools.ts`
+  - Config: `src/types/config.ts`, `src/config/schema.ts`, `src/config/defaults.ts`, `src/config/loader.ts`
+  - Docs: `docs/CHANNELS.md`, `docs/CONFIGURATION.md`, `docs/SETUP.md`, `README.md`, `STRUCTURE.md`
+  - Dependency: `@notionhq/client@^2.2.14`
+
+#### Configuration & Documentation
+
+- Added new environment variables for Slack, Teams, Signal, and Notion
+- Expanded `config/agent.json` and `config/channels.json` templates
+- Updated README and STRUCTURE references for new channels/tools
+
 ### Added - Short-Term Improvements (2026-01-31)
 
 #### Session Management

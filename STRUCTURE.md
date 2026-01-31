@@ -59,6 +59,13 @@ BertBot/
 │   │   │   ├── bot.ts               # Slack Bolt app (socket/http)
 │   │   │   └── handlers.ts          # Event handlers + slash commands
 │   │   │
+│   │   ├── teams/
+│   │   │   ├── bot.ts               # Bot Framework adapter + Express route
+│   │   │   └── handlers.ts          # Activity handlers
+│   │   │
+│   │   ├── signal/
+│   │   │   └── bot.ts               # signal-cli bridge (listener + sender)
+│   │   │
 │   │   └── webchat/
 │   │       ├── server.ts            # WebSocket endpoint
 │   │       └── static/              # Web UI assets
@@ -75,6 +82,7 @@ BertBot/
 │   │   ├── bash.ts                  # Sandboxed shell command execution
 │   │   ├── files.ts                 # File read/write/edit operations
 │   │   ├── http.ts                  # HTTP requests with SSRF protection
+│   │   ├── notion.ts                # Notion API integration
 │   │   └── index.ts                 # Tool registry
 │   │
 │   ├── security/                    # Security layer
@@ -155,7 +163,7 @@ BertBot follows a **layered, event-driven architecture** with clear separation o
                   │
 ┌─────────────────▼───────────────────────────────────────┐
 │                   Channel Layer                          │
-│  Telegram (Grammy) | Discord.js | WebChat | Slack       │
+│  Telegram (Grammy) | Discord.js | WebChat | Slack | Teams | Signal │
 │  Platform-specific message handling                      │
 └─────────────────┬───────────────────────────────────────┘
                   │
@@ -167,7 +175,7 @@ BertBot follows a **layered, event-driven architecture** with clear separation o
                   │
 ┌─────────────────▼───────────────────────────────────────┐
 │                    Tool Layer                            │
-│  Bash (Sandboxed) | Files | HTTP (SSRF Protected)      │
+│  Bash (Sandboxed) | Files | HTTP | Notion              │
 │  Tool registry + validation + execution                 │
 └─────────────────┬───────────────────────────────────────┘
                   │
@@ -195,6 +203,8 @@ BertBot follows a **layered, event-driven architecture** with clear separation o
   - **Discord**: Discord.js v14 (full support)
   - **WebChat**: Custom WebSocket + HTML/CSS/JS UI (full support)
   - **Slack**: Bolt framework (socket + HTTP mode)
+  - **Teams**: Bot Framework adapter (HTTP endpoint)
+  - **Signal**: signal-cli bridge (local listener)
 - **Features**:
   - Unified message interface
   - Platform-specific command handling
@@ -218,6 +228,7 @@ BertBot follows a **layered, event-driven architecture** with clear separation o
   - **Bash**: Whitelisted command execution (37 security tests)
   - **Files**: Read/write/edit with path traversal protection (21 tests)
   - **HTTP**: Requests with SSRF protection (30 tests)
+  - **Notion**: Search, create, update pages/databases
 - **Security**:
   - Command sandboxing (whitelist-based)
   - Path validation (workspace boundaries)
@@ -286,7 +297,7 @@ User Input
 
 ## 📦 Dependencies
 
-### Production Dependencies (9 total)
+### Production Dependencies (13 total)
 
 | Package | Version | Purpose |
 |---------|---------|---------|
@@ -296,12 +307,15 @@ User Input
 | `ws` | ^8.14.0 | WebSocket server |
 | `grammy` | ^1.21.0 | Telegram bot framework |
 | `discord.js` | ^14.14.1 | Discord bot library |
+| `@slack/bolt` | ^3.17.0 | Slack bot framework |
+| `@notionhq/client` | ^2.2.14 | Notion API client |
+| `botbuilder` | ^4.23.0 | Microsoft Bot Framework |
 | `pino` | ^10.3.0 | Structured logging |
-| `pino-pretty` | ^13.1.3 | Log formatting (dev) |
+| `pino-pretty` | ^13.1.3 | Log formatting (optional) |
 | `dotenv` | ^16.3.0 | Environment variables |
 | `zod` | ^3.22.0 | Schema validation |
 
-### Development Dependencies (8 total)
+### Development Dependencies (9 total)
 
 | Package | Version | Purpose |
 |---------|---------|---------|
@@ -313,6 +327,7 @@ User Input
 | `@types/jest` | ^29.0.0 | Jest type definitions |
 | `jest` | ^29.0.0 | Testing framework |
 | `ts-jest` | ^29.0.0 | Jest TypeScript support |
+| `tsconfig-paths` | ^4.2.0 | Runtime path alias support |
 | `tsconfig-paths` | ^4.2.0 | TypeScript path aliases |
 
 **Total Bundle Size**: Minimal (no heavy dependencies like Playwright, Puppeteer, etc.)
@@ -454,7 +469,7 @@ Configured paths:
 - **Lines of Code**: ~1,366 TypeScript
 - **Test Coverage**: 87.85%
 - **Security Tests**: 88 tests across 3 suites
-- **Dependencies**: 9 production, 8 development
+- **Dependencies**: 13 production, 9 development
 - **Security Score**: 9/10 (see [AUDIT.md](AUDIT.md))
 - **Node.js Requirement**: 18.0.0+
 - **TypeScript Version**: 5.3.0
@@ -465,9 +480,9 @@ Configured paths:
 
 ### ✅ Implemented (MVP)
 - WebSocket gateway with rate limiting
-- Multi-channel support (Telegram, Discord, WebChat)
+- Multi-channel support (Telegram, Discord, WebChat, Slack, Teams, Signal)
 - Multi-provider AI (OpenAI, Anthropic, Perplexity)
-- Tool system (bash, files, http)
+- Tool system (bash, files, http, notion)
 - Session management with encryption
 - DM pairing security
 - Comprehensive security hardening
@@ -548,7 +563,7 @@ Configured paths:
 - Production-grade encryption and sandboxing
 
 ### 2. Simplicity Over Complexity
-- Minimal dependencies (11 production deps)
+- Minimal dependencies (13 production deps)
 - Clear separation of concerns
 - No over-engineering
 - Easy to understand and maintain
@@ -578,7 +593,7 @@ Configured paths:
 
 BertBot is designed for:
 
-1. **Personal AI Assistant** - Accessible via Telegram/Discord/WebChat
+1. **Personal AI Assistant** - Accessible via Telegram/Discord/WebChat/Slack/Teams/Signal
 2. **Team Collaboration** - Multi-channel support for team workflows
 3. **Development Tools** - Code assistance, file operations, bash commands
 4. **Secure Deployments** - Production-grade security for sensitive environments

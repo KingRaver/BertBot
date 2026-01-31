@@ -96,6 +96,7 @@ export class AgentRuntime {
       "- bash: input is a shell command string.",
       "- files: input is JSON with {\"action\":\"read|write\",\"path\":\"...\",\"content\":\"...\"}.",
       "- http: input is JSON with {\"url\":\"...\",\"method\":\"GET|POST\",...}.",
+      "- notion: input is JSON with {\"action\":\"search|getPage|createPage|appendBlock|updatePage|queryDatabase\", ...}.",
       "Available tools:",
       toolList || "- (no tools available)",
       "Do not include any extra keys or commentary outside the JSON object."

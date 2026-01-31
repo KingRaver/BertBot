@@ -6,6 +6,8 @@ import { registerWebChat } from "@channels/webchat/server";
 import { createTelegramBot } from "@channels/telegram/bot";
 import { createDiscordClient } from "@channels/discord/bot";
 import { createSlackApp } from "@channels/slack/bot";
+import { registerTeams } from "@channels/teams/bot";
+import { createSignalBridge } from "@channels/signal/bot";
 import { loadConfig } from "@config/loader";
 import { logger } from "@utils/logger";
 import { createProvider } from "@agent/providers";
@@ -29,7 +31,7 @@ function loadOptionalFile(filePath: string): string | undefined {
 async function main(): Promise<void> {
   const config = loadConfig();
   const provider = await createProvider(config.provider);
-  const tools = createDefaultToolRegistry();
+  const tools = createDefaultToolRegistry(config);
 
   const systemPrompt = loadOptionalFile(path.join(process.cwd(), "workspace", "AGENTS.md"));
   const runtime = new AgentRuntime({
@@ -136,6 +138,39 @@ async function main(): Promise<void> {
       }
       if (!isRecoverableError(error)) {
         logger.warn("Slack app will not be available");
+      }
+    }
+  }
+
+  if (config.channels.teams?.enabled) {
+    try {
+      registerTeams(gateway.app, agentService, config.channels.teams);
+      logger.info("Teams bot registered");
+    } catch (error) {
+      logger.error("Teams bot failed to start", error);
+      if (isFatalError(error)) {
+        logger.error("Fatal error in Teams initialization, exiting");
+        process.exit(1);
+      }
+      if (!isRecoverableError(error)) {
+        logger.warn("Teams bot will not be available");
+      }
+    }
+  }
+
+  if (config.channels.signal?.enabled) {
+    try {
+      const signal = createSignalBridge(config.channels.signal, agentService);
+      signal.start();
+      logger.info("Signal bridge started");
+    } catch (error) {
+      logger.error("Signal bridge failed to start", error);
+      if (isFatalError(error)) {
+        logger.error("Fatal error in Signal initialization, exiting");
+        process.exit(1);
+      }
+      if (!isRecoverableError(error)) {
+        logger.warn("Signal bridge will not be available");
       }
     }
   }

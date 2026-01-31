@@ -17,3 +17,6 @@ Open WebChat at `http://localhost:18789/webchat`.
 - Telegram: set `TELEGRAM_BOT_TOKEN` and enable it in `config/agent.json`.
 - Discord: set `DISCORD_BOT_TOKEN` and enable it in `config/agent.json`.
 - Slack: set `SLACK_BOT_TOKEN` and enable it in `config/agent.json` (plus `SLACK_APP_TOKEN` for socket mode or `SLACK_SIGNING_SECRET` for HTTP mode).
+- Teams: set `TEAMS_APP_ID` and `TEAMS_APP_PASSWORD`, enable it in `config/agent.json`, and set the messaging endpoint to `https://<host>/teams/messages`.
+- Signal: install `signal-cli`, register a Signal account, set `SIGNAL_ACCOUNT`, and enable it in `config/agent.json`.
+- Notion: set `NOTION_API_KEY` (and `NOTION_DATABASE_ID` or `NOTION_DEFAULT_PARENT_ID`) and enable Notion in `config/agent.json`.

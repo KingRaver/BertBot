@@ -2,7 +2,7 @@
 
 **Production-ready AI agent gateway with enterprise-grade security**
 
-BertBot is a secure, multi-channel AI agent gateway inspired by [OpenClaw](https://github.com/openclaw/openclaw), optimized for Node.js 18+ and macOS Big Sur compatibility. It provides a unified interface for multiple AI providers (OpenAI, Anthropic, Perplexity) across various messaging platforms (Telegram, Discord, WebChat, Slack).
+BertBot is a secure, multi-channel AI agent gateway inspired by [OpenClaw](https://github.com/openclaw/openclaw), optimized for Node.js 18+ and macOS Big Sur compatibility. It provides a unified interface for multiple AI providers (OpenAI, Anthropic, Perplexity) across various messaging platforms (Telegram, Discord, WebChat, Slack, Teams, Signal).
 
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
@@ -24,8 +24,9 @@ BertBot is a secure, multi-channel AI agent gateway inspired by [OpenClaw](https
 
 ### 🎯 Core Capabilities
 - **Multi-Provider Support** - OpenAI (GPT), Anthropic (Claude), Perplexity
-- **Multi-Channel** - Telegram, Discord, WebChat, Slack (socket or HTTP mode)
+- **Multi-Channel** - Telegram, Discord, WebChat, Slack (socket or HTTP mode), Teams, Signal
 - **Tool System** - Bash commands, file operations, HTTP requests
+- **Notion Integration** - Search, create, update pages and databases via tool
 - **Session Management** - Persistent conversation history with encryption and automatic cleanup
 - **Structured Logging** - Production-grade logging with Pino
 - **WebSocket Gateway** - Real-time bidirectional communication
@@ -34,7 +35,7 @@ BertBot is a secure, multi-channel AI agent gateway inspired by [OpenClaw](https
 - **Modular Design** - Clean separation of concerns (gateway, agent, channels, tools)
 - **Type Safety** - Full TypeScript with strict mode
 - **Configuration-Driven** - Environment variables and JSON config
-- **Minimal Dependencies** - 9 production dependencies, carefully chosen
+- **Minimal Dependencies** - 13 production dependencies, carefully chosen
 - **Path Aliases** - Clean imports with `@agent/*`, `@security/*`, etc.
 
 ---
@@ -98,6 +99,8 @@ npm start
 - **WebSocket**: ws://localhost:3030
 - **Telegram**: Message your bot (@YourBotName)
 - **Discord**: Invite bot to your server
+- **Teams**: Add the bot to your tenant after configuring the messaging endpoint
+- **Signal**: Send a message to your Signal number after configuring `signal-cli`
 
 ---
 
@@ -181,6 +184,27 @@ npm start
    # Socket mode app token (xapp-...) OR signing secret for HTTP mode
    SLACK_APP_TOKEN=xapp-...
    SLACK_SIGNING_SECRET=...
+   ```
+
+   **Microsoft Teams**
+   ```bash
+   # Azure Bot app registration
+   TEAMS_APP_ID=...
+   TEAMS_APP_PASSWORD=...
+   ```
+   Set the messaging endpoint to `https://<host>/teams/messages`.
+
+   **Signal**
+   ```bash
+   # Requires signal-cli installed locally
+   SIGNAL_ACCOUNT=+15551234567
+   ```
+
+   **Notion**
+   ```bash
+   # Notion integration token
+   NOTION_API_KEY=secret_...
+   NOTION_DATABASE_ID=...
    ```
 
 7. **Customize Agent Behavior** (Optional)
@@ -454,7 +478,7 @@ BertBot uses a modular, event-driven architecture with clear separation of conce
                   │
 ┌─────────────────▼───────────────────────────────────────┐
 │                    Channel Layer                         │
-│  (Telegram, Discord, WebChat, Slack)                    │
+│  (Telegram, Discord, WebChat, Slack, Teams, Signal)     │
 └─────────────────┬───────────────────────────────────────┘
                   │
 ┌─────────────────▼───────────────────────────────────────┐
@@ -464,7 +488,7 @@ BertBot uses a modular, event-driven architecture with clear separation of conce
                   │
 ┌─────────────────▼───────────────────────────────────────┐
 │                     Tool Layer                           │
-│  (Bash, Files, HTTP + Sandboxing)                       │
+│  (Bash, Files, HTTP, Notion + Sandboxing)               │
 └──────────────────────────────────────────────────────────┘
 ```
 
@@ -473,7 +497,7 @@ BertBot uses a modular, event-driven architecture with clear separation of conce
 - **Gateway** (`src/gateway/`) - WebSocket server, rate limiting
 - **Channels** (`src/channels/`) - Platform integrations (Telegram, Discord, etc.)
 - **Agent** (`src/agent/`) - AI runtime and provider abstraction
-- **Tools** (`src/tools/`) - Agent capabilities (bash, files, http)
+- **Tools** (`src/tools/`) - Agent capabilities (bash, files, http, notion)
 - **Security** (`src/security/`) - Sandbox, encryption, rate limiting
 - **Sessions** (`src/sessions/`) - Conversation persistence
 
@@ -514,7 +538,7 @@ git push origin feature/your-feature
 
 ### Completed ✅
 - [x] Multi-provider AI support (OpenAI, Anthropic, Perplexity)
-- [x] Multi-channel messaging (Telegram, Discord, WebChat, Slack)
+- [x] Multi-channel messaging (Telegram, Discord, WebChat, Slack, Teams, Signal)
 - [x] Security hardening (sandbox, SSRF, encryption)
 - [x] Comprehensive test coverage (87.85%)
 - [x] Rate limiting and abuse prevention
@@ -543,7 +567,7 @@ git push origin feature/your-feature
 - **Lines of Code**: ~1,366 TypeScript
 - **Test Suites**: 5 suites, 131 tests
 - **Security Tests**: 121 tests (sandbox, files, HTTP, sessions, pairing)
-- **Dependencies**: 11 production, 9 development
+- **Dependencies**: 13 production, 9 development
 - **Security Score**: 9/10
 - **Node.js**: 18+ required
 - **TypeScript**: 5.3.0

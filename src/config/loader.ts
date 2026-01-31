@@ -130,6 +130,30 @@ export function loadConfig(): AppConfig {
     };
   }
 
+  const notionEnv: Record<string, unknown> = {};
+  if (process.env.NOTION_ENABLED) {
+    const enabled = parseBoolean(process.env.NOTION_ENABLED);
+    if (enabled !== undefined) {
+      notionEnv.enabled = enabled;
+    }
+  }
+  if (process.env.NOTION_API_KEY) {
+    notionEnv.enabled = true;
+    notionEnv.apiKey = process.env.NOTION_API_KEY;
+  }
+  if (process.env.NOTION_DATABASE_ID) {
+    notionEnv.databaseId = process.env.NOTION_DATABASE_ID;
+  }
+  if (process.env.NOTION_DEFAULT_PARENT_ID) {
+    notionEnv.defaultParentId = process.env.NOTION_DEFAULT_PARENT_ID;
+  }
+  if (Object.keys(notionEnv).length > 0) {
+    envConfig.notion = {
+      ...(envConfig.notion as Record<string, unknown> | undefined),
+      ...notionEnv
+    };
+  }
+
   if (process.env.TELEGRAM_BOT_TOKEN) {
     envConfig.channels = {
       ...(envConfig.channels as Record<string, unknown> | undefined),
@@ -191,6 +215,97 @@ export function loadConfig(): AppConfig {
     envConfig.channels = {
       ...(envConfig.channels as Record<string, unknown> | undefined),
       slack: slackEnv
+    };
+  }
+
+  const teamsEnv: Record<string, unknown> = {};
+  if (process.env.TEAMS_APP_ID) {
+    teamsEnv.enabled = true;
+    teamsEnv.appId = process.env.TEAMS_APP_ID;
+  }
+  if (process.env.TEAMS_APP_PASSWORD) {
+    teamsEnv.enabled = true;
+    teamsEnv.appPassword = process.env.TEAMS_APP_PASSWORD;
+  }
+  if (process.env.TEAMS_ENDPOINT) {
+    teamsEnv.endpoint = process.env.TEAMS_ENDPOINT;
+  }
+  const allowedTeams = parseList(process.env.TEAMS_ALLOWED_TEAMS);
+  if (allowedTeams) {
+    teamsEnv.allowedTeams = allowedTeams;
+  }
+  const allowedChannels = parseList(process.env.TEAMS_ALLOWED_CHANNELS);
+  if (allowedChannels) {
+    teamsEnv.allowedChannels = allowedChannels;
+  }
+  const allowPersonal = parseBoolean(process.env.TEAMS_ALLOW_PERSONAL);
+  if (allowPersonal !== undefined) {
+    teamsEnv.allowPersonal = allowPersonal;
+  }
+  const allowGroup = parseBoolean(process.env.TEAMS_ALLOW_GROUP);
+  if (allowGroup !== undefined) {
+    teamsEnv.allowGroup = allowGroup;
+  }
+  const allowChannel = parseBoolean(process.env.TEAMS_ALLOW_CHANNEL);
+  if (allowChannel !== undefined) {
+    teamsEnv.allowChannel = allowChannel;
+  }
+  const mentionOnly = parseBoolean(process.env.TEAMS_MENTION_ONLY);
+  if (mentionOnly !== undefined) {
+    teamsEnv.mentionOnly = mentionOnly;
+  }
+  const ignoreBots = parseBoolean(process.env.TEAMS_IGNORE_BOTS);
+  if (ignoreBots !== undefined) {
+    teamsEnv.ignoreBots = ignoreBots;
+  }
+
+  if (Object.keys(teamsEnv).length > 0) {
+    envConfig.channels = {
+      ...(envConfig.channels as Record<string, unknown> | undefined),
+      teams: teamsEnv
+    };
+  }
+
+  const signalEnv: Record<string, unknown> = {};
+  if (process.env.SIGNAL_ACCOUNT) {
+    signalEnv.enabled = true;
+    signalEnv.account = process.env.SIGNAL_ACCOUNT;
+  }
+  if (process.env.SIGNAL_CLI_PATH) {
+    signalEnv.cliPath = process.env.SIGNAL_CLI_PATH;
+  }
+  const signalRecipients = parseList(process.env.SIGNAL_ALLOWED_RECIPIENTS);
+  if (signalRecipients) {
+    signalEnv.allowedRecipients = signalRecipients;
+  }
+  const signalGroups = parseList(process.env.SIGNAL_ALLOWED_GROUPS);
+  if (signalGroups) {
+    signalEnv.allowedGroups = signalGroups;
+  }
+  const signalAllowDMs = parseBoolean(process.env.SIGNAL_ALLOW_DMS);
+  if (signalAllowDMs !== undefined) {
+    signalEnv.allowDMs = signalAllowDMs;
+  }
+  const signalAllowGroups = parseBoolean(process.env.SIGNAL_ALLOW_GROUPS);
+  if (signalAllowGroups !== undefined) {
+    signalEnv.allowGroups = signalAllowGroups;
+  }
+  const signalIgnoreOwn = parseBoolean(process.env.SIGNAL_IGNORE_OWN);
+  if (signalIgnoreOwn !== undefined) {
+    signalEnv.ignoreOwn = signalIgnoreOwn;
+  }
+  const signalMentionOnly = parseBoolean(process.env.SIGNAL_MENTION_ONLY);
+  if (signalMentionOnly !== undefined) {
+    signalEnv.mentionOnly = signalMentionOnly;
+  }
+  if (process.env.SIGNAL_COMMAND_PREFIX) {
+    signalEnv.commandPrefix = process.env.SIGNAL_COMMAND_PREFIX;
+  }
+
+  if (Object.keys(signalEnv).length > 0) {
+    envConfig.channels = {
+      ...(envConfig.channels as Record<string, unknown> | undefined),
+      signal: signalEnv
     };
   }
 

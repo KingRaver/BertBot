@@ -15,6 +15,11 @@ export const defaultConfig: AppConfig = {
   security: {
     allowlistPath: ""
   },
+  notion: {
+    enabled: false,
+    databaseId: "",
+    defaultParentId: ""
+  },
   channels: {
     telegram: {
       enabled: false
@@ -31,6 +36,28 @@ export const defaultConfig: AppConfig = {
       respondInThread: true,
       ignoreBots: true,
       allowedChannels: []
+    },
+    teams: {
+      enabled: false,
+      endpoint: "/teams/messages",
+      allowPersonal: true,
+      allowGroup: true,
+      allowChannel: true,
+      mentionOnly: false,
+      ignoreBots: true,
+      allowedTeams: [],
+      allowedChannels: []
+    },
+    signal: {
+      enabled: false,
+      cliPath: "signal-cli",
+      allowDMs: true,
+      allowGroups: true,
+      ignoreOwn: true,
+      mentionOnly: false,
+      commandPrefix: "/bert",
+      allowedRecipients: [],
+      allowedGroups: []
     },
     webchat: {
       enabled: true
